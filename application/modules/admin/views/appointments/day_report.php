@@ -1,0 +1,174 @@
+<div class="content-wrapper">
+  <section class="content-header">
+    <h1>
+      Appointments
+      <small>Control panel</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+      <li class="active">Dashboard</li>
+    </ol>
+  </section>
+
+  <section>
+      <div class="row">
+      <div class="col-md-12">
+            <div class="col-md-offset-4 box-body">
+              <form action="admin/appointments/getAppointmentsByDate" method="POST" class="form-inline" role="form">
+              <?php echo form_open('admin/appointments/getAppointmentsByDate',array('class' => "form-inline")); ?>
+                <div class="form-group">
+                  <input type="text" name="from_date" required class="form-control" 
+                  id="from_date" placeholder="From Date">
+                </div>
+                -
+                <div class="form-group">
+                  <input type="text" name="to_date" required class="form-control" 
+                  id="to_date" placeholder="To Date">
+                </div>  
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+            </div><!-- /.box-body -->
+      </div>
+  </div>
+  </section>
+  
+
+  <section class="content">
+
+         <div class="row mb10">
+            <div class="col-md-7">
+                <?php //echo anchor(site_url('admin/appointments/create'),'Create', 'class="btn btn-primary"'); ?>
+                <a href="javascript:void(0);" class="btn btn-primary">Appointments : <b><?php echo $total_rows ?></b></a>
+                <a href="javascript:void(0);" class="btn btn-primary">Amount : <b><?php echo $day_details['total_amount'].' '.$this->config->item('site_currency') ?></b></a>
+                <a href="javascript:void(0);" class="btn btn-primary">Pending Amount : <b><?php echo $day_details['pending_amount'].' '.$this->config->item('site_currency') ?></b></a>
+                <a href="javascript:void(0);" class="btn btn-primary">Received Amount : <b><?php echo $day_details['received_amount'].' '.$this->config->item('site_currency') ?></b></a>
+            </div>
+            <div class="col-md-5">
+                <div class="pull-right">
+                    <a href="javascript:void(0);" class="btn btn-info">Pending : <b><?php echo $day_details['pending_appointments'] ?></b></a>
+                    <a href="javascript:void(0);" class="btn btn-warning">Inprogress : <b><?php echo $day_details['inprogress_appointments'] ?></b></a>
+                    <a href="javascript:void(0);" class="btn btn-success">Generated : <b><?php echo $day_details['generated_appointments'] ?></b></a>
+                    <a href="javascript:void(0);" class="btn btn-danger">Cancelled : <b><?php echo $day_details['cancelled_appointments'] ?></b></a>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="row">
+             <div style="margin-top: 8px;" id="message_wrapper" class="col-md-offset-3 col-md-6">
+                    
+            </div>
+        </div>
+
+        
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-warning">
+                    <div class="box-header">
+                        <h3 class="box-title">From Date : <b><?php echo $dates['from_date']; ?></b>  -  To Date : <b><?php echo $dates['to_date']; ?></b></h3>
+                        <div class="box-tools">
+                        </div>
+                    </div><!-- /.box-header -->
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover" style="margin-bottom: 10px">
+                            <tr>
+                                <th>App No</th>
+                                <th>Name</th>
+                                <th>Gender</th>
+                                <th>Phone</th>
+                                <th>Test</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Payment</th>
+                                <th>Action</th>
+                            </tr><?php if(count($appointments_data) > 0):
+                            foreach ($appointments_data as $appointments)
+                            {
+                                ?>
+                                <tr id="<?php echo $appointments->reference_no ?>">
+                                    <td><?php echo $appointments->reference_no ?></td>
+                                    <td><b><?php echo humanize($appointments->name) ?></b></td>
+                                    <td><?php echo humanize($appointments->sex) ?></td>
+                                    <td><?php echo $appointments->phone ?></td>
+                                    <td><?php echo getTestName($appointments->test) ?></td>
+                                    <td><?php echo $appointments->appointment_date ?></td>
+                                    <td><?php 
+                                        switch ($appointments->appointment_status) {
+                                            case 'pending':
+                                            echo '<span class="label label-info">'.humanize($appointments->appointment_status).'</span>';
+                                            break;
+                                            case "inprogress":
+                                            echo '<span class="label label-warning">'.humanize($appointments->appointment_status).'</span>';
+                                            break;
+                                            case 'generated':
+                                            echo '<span class="label label-success">'.humanize($appointments->appointment_status).'</span>';
+                                            break;
+                                            case 'cancelled':
+                                            echo '<span class="label label-danger">'.humanize($appointments->appointment_status).'</span>';
+                                            break;
+                                        }
+                                        ?></td>
+                                        <td>
+                                        <?php 
+
+                                        switch ($appointments->payment_status) {
+                                            case 'paid':
+                                                    echo '<span class="label label-success">'.humanize($appointments->payment_status).'</span>';
+                                                break;
+                                            case "unpaid":
+                                                    echo '<span class="label label-danger">'.humanize($appointments->payment_status).'</span>';
+                                                break;
+                                        }
+                                         ?>  
+                                         </td>
+                                        <td width="300px">
+
+                                            <a href="" rel="async" ajaxify="admin/appointments/read/<?php  echo $appointments->id?>">View</a>
+                                            <?php 
+                                            echo ' | ';
+                                            echo anchor(site_url('admin/appointments/update/'.$appointments->id),'Update'); 
+                                            echo ' | ';
+                                            ?>
+                                            <a href="admin/appointments/uploadReportsForm" class="uploadReportsForm" data-refno="<?php echo $appointments->reference_no; ?>">Upload Reports</a>
+                                            <span>
+                                                <?php 
+                                                    if(!empty($appointments->report_doc) && !empty($appointments->email_id)){
+                                                        echo ' | ';
+                                                        echo '<a href="admin/appointments/sendMail" class="sendmail" data-refno="'.$appointments->reference_no.'">Send Mail</a>';
+                                                    }
+                                                ?>    
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <?php } else: ?>
+                                    <tr>
+                                        <td colspan=8 class="text-center"> <h4>No Appointments Available on From Date : <b><?php echo $dates['from_date']; ?></b>  -  To Date : <b><?php echo $dates['to_date']; ?></b>.</h4></td>
+                                    </tr>
+                                <?php   endif; ?>
+                            </table>
+                        </div><!-- /.box-body -->
+                    </div><!-- /.box -->
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <?php echo anchor(site_url('admin/appointments/create'),'Create', 'class="btn btn-primary"'); ?>
+                </div>
+                <div class="col-md-6 text-right" id="appointments_pagination">
+                    <?php echo $pagination ?>
+                </div>
+            </div>
+
+            <div class="row mt10">
+                <div class="col-md-12">
+                    <div class="well">
+
+                      <div class="text-center">
+                            NOTE : Select the required dates for appointments list. <br/>
+                      </div>
+                      
+                    </div>
+                </div>
+            </div>
+        </section>
+</div>

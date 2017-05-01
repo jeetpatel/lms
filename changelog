@@ -1,0 +1,6 @@
+Date: 28 April 2017
+ALTER TABLE  `doctors` ADD  `commission` FLOAT( 10, 2 ) NOT NULL ,
+ADD  `created_at` DATETIME NOT NULL ,
+ADD  `updated_at` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NULL ;
+
+ALTER TABLE  `appointments` ADD  `doctor_id` INT( 10 ) NOT NULL AFTER  `doctor_ref_by` ;
