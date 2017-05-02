@@ -5,7 +5,12 @@
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini">LAB</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><small><?php if($this->config->item('site_name') != "") echo $this->config->item('site_name'); else echo SITENAME; ?></small> </span>
+      <span class="logo-lg"><small>
+        <?php if($this->config->item('site_name') != "") 
+          echo $this->config->item('site_name'); 
+        else 
+          echo SITENAME; ?>
+          </small> </span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top" role="navigation">
