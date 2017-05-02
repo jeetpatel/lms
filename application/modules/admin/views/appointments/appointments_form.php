@@ -1,12 +1,3 @@
-<style type="text/css">
-/*#sing {
-    float: right;
-    margin-top: 2px;
-    padding: 3px;
-    padding-top: 3px;
-    position: absolute;
-}*/
-</style>
 <div class="content-wrapper">
     <section class="content-header">
         <h1>
