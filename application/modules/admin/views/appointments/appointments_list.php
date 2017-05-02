@@ -101,8 +101,8 @@
                         echo '<span class="label label-warning">'.humanize($appointments->appointment_status).'</span>';
                     break;
                 case 'generated':
-//                        echo '<span class="label label-success">'.humanize($appointments->appointment_status).'</span>';
-                    echo '<span class="label label-success" id="appoint-generate-List">'. anchor(site_url('admin/appointments/generate/'.$appointments->id),humanize($appointments->appointment_status)).'</span>';
+                      echo '<span class="label label-success">'.humanize($appointments->appointment_status).'</span>';
+//                    echo '<span class="label label-success" id="appoint-generate-List">'. anchor(site_url('admin/appointments/generate/'.$appointments->id),humanize($appointments->appointment_status)).'</span>';
                     break;
                 case 'cancelled':
                         echo '<span class="label label-danger">'.humanize($appointments->appointment_status).'</span>';
@@ -130,7 +130,10 @@
                 echo ' | ';
                 ?>
                 <a href="admin/appointments/uploadReportsForm" class="uploadReportsForm" data-refno="<?php echo $appointments->reference_no; ?>">Upload Reports</a>
-
+				<?php 
+				echo ' | ';
+				echo anchor(site_url('admin/appointments/generate/'.$appointments->id),'<i class="fa fa-print" aria-hidden="true"></i>',false,1);
+				?>
                 <span>
                     <?php 
                         if(!empty($appointments->report_doc) && !empty($appointments->email_id)){

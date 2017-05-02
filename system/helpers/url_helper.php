@@ -140,7 +140,7 @@ if ( ! function_exists('index_page'))
  */
 if ( ! function_exists('anchor'))
 {
-	function anchor($uri = '', $title = '', $attributes = '')
+	function anchor($uri = '', $title = '', $attributes = '', $flag = 0)
 	{
 		$title = (string) $title;
 
@@ -163,7 +163,12 @@ if ( ! function_exists('anchor'))
 			$attributes = _parse_attributes($attributes);
 		}
 
+		if ($flag === 1) {
+			return '<a href="'.$site_url.'"'.$attributes.'target="_blank">'.$title.'</a>';
+		}
+
 		return '<a href="'.$site_url.'"'.$attributes.'>'.$title.'</a>';
+		
 	}
 }
 
