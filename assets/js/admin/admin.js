@@ -47,10 +47,8 @@
 
                     $(document).off('focusout.discount').on('focusout.discount', '#discount', function(event) {
                             
-                            
                             var discountPercent = $(this).val();
-                            var lastChar = discountPercent.substr(discountPercent.length - 1);
-                           
+                            var lastChar = $('#sing').val();
                             if(lastChar == '%'){
                             var price = parseInt($('#test_price').val());
                             var discountPercent = parseInt($(this).val());
