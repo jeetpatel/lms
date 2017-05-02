@@ -89,7 +89,10 @@
                 <table>
                     <tr>
                         <td class="title">
-                           <h3>Lab Management</h3>
+                           <h3><?php if($this->config->item('site_name') != "") 
+          echo $this->config->item('site_name'); 
+        else 
+          echo SITENAME; ?></h3>
                         </td>
 
                         <td>
@@ -107,17 +110,28 @@
                 <table>
                     <tr>
                         <td>
-                             Patient Name :-<?php echo $v['name'];?> <br>
-                             Sex :- <?php echo $v['sex'];?> <br>
-                             Age :-<?php echo $v['age'];?> <br>
-                             Ref.Dr. <?php echo $v['doctor_ref_by'];?> <br>
+                            Patient Name :-<?php echo $v['name'];?> <br>
+                            Mobile : <?php echo $v['phone'];?> <br>
+                            Sex :- <?php echo $v['sex'];?> <br>
+                            Age :-<?php echo $v['age'];?> <br>
+                            Ref.Dr. <?php 
+                            $doctor = getDoctor($v['doctor_id']);
+                            if (isset($doctor->surname))
+                            {
+                              echo humanize($doctor->surname.' '.$doctor->name);
+                            }
+                            ?> <br>
+                             
 
                         </td>
 
                         <td>
-                            <br>
-                            lab address<br>
-                            nkscoder@gmail.com
+                            Test<br>
+                            121212<br>
+                            Sub Test<br>
+                            53453453<br>
+                            Price : 345.00 Rs.
+                            
                         </td>
                     </tr>
                 </table>
@@ -197,9 +211,9 @@
 </div>
 <?php endforeach; ?>
 <script type="text/javascript">
-    window.print();
-    window.onfocus=function(){ window.close();}
-    window.location="<?php echo site_url('admin/appointments'); ?>";
+    //window.print();
+    //window.onfocus=function(){ window.close();}
+    //window.location="<?php echo site_url('admin/appointments'); ?>";
 </script>
 
 </body>
