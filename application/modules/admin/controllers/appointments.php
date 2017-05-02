@@ -617,17 +617,7 @@ SUBMITREPORT;
    public function generate ($id)
    {
        $data['generateValue']= $this->appointments_model->generate_get_by_id($id);
-//       $data=array('reference_no'=>$generateValue->reference_no);
-//       print_r($data);die;
-//       1 [user_id] => 1 [reference_no] => 58ff89614e032
-//        [name] => nitesh singh [age] => 32 [sex] => male [phone] => 7827495599
-//       [email_id] => nkscoder@gmail.com [test] => 1
-//       [test_price] => 200.00 [discount] => 23 [total_price] => 177.00
-//       [sample_collection_time] => 2:10 AM [appointment_date] => 2017-04-25
-//       [doctor_ref_by] => gyjghjg [appointment_status] => generated
-//       [report_doc] => [payment_status] => paid ) )
        $this->load->view('appointments/appointment_print', $data);
-//       return ;
    }
 }
 /* End of file Appointments.php */
