@@ -199,7 +199,7 @@
 <script type="text/javascript">
     window.print();
     window.onfocus=function(){ window.close();}
-    window.location="http://localhost/lab_management/admin/appointments/";
+    window.location="<?php echo site_url('admin/appointments'); ?>";
 </script>
 
 </body>
