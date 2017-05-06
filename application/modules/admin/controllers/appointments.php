@@ -275,6 +275,7 @@ class Appointments extends MY_Controller {
         $doctorResult = $this->doctors_model->get_by_id($doctorID);
         if ((!empty($doctorResult)) && (!empty($aid)))
         {
+          $data['doctor_ref_by'] = $doctorResult->surname;
           $commission = $doctorResult->commission;
           $commAmount = ($totalPrice*$commission)/100;
           $cData['comm_amount']     = $commAmount;
@@ -283,6 +284,7 @@ class Appointments extends MY_Controller {
           $cData['total_amount']    = $totalPrice;
           $cData['comm_percent']    = $doctorResult->commission;
           $cData['created_at']      = $date;
+          $cData['updated_at']      = $date;
           $this->commission_model->insert_commission($cData);
         }
       }      
@@ -396,6 +398,26 @@ class Appointments extends MY_Controller {
       $data['test_name'] = (isset($testResult->test_name)) ? $testResult->test_name : NULL;
       $data['updated_at'] = $date;
       $this->appointments_model->update_appointment($this->input->post('id', TRUE), $data);
+      //commission calculation
+      $aid = $this->input->post('id', TRUE);
+      $totalPrice = $this->input->post('total_price');
+      $doctorID   = $this->input->post('doctor_ref_by');
+      if (!empty($doctorID)) {
+        $doctorResult = $this->doctors_model->get_by_id($doctorID);
+        if ((!empty($doctorResult)) && (!empty($aid)))
+        {
+          $data['doctor_ref_by'] = $doctorResult->surname;
+          $commission = $doctorResult->commission;
+          $commAmount = ($totalPrice*$commission)/100;
+          $cData['comm_amount']     = $commAmount;
+          $cData['doctor_id']       = $doctorID;
+          $cData['appointment_id']  = $aid;
+          $cData['total_amount']    = $totalPrice;
+          $cData['comm_percent']    = $doctorResult->commission;
+          $cData['updated_at']      = $date;
+          $this->commission_model->update_commission($aid,$cData);
+        }
+      }  
       $this->session->set_flashdata('message', 'Appointment Updated Successfully.');
       redirect(site_url('admin/appointments'));
     }
