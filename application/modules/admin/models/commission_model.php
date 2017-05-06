@@ -80,7 +80,7 @@ class Commission_model extends MY_Model {
 
   // update data
   function update_commission($id, $data) {
-    $this->db->where($this->id, $id);
+    $this->db->where('appointment_id', $id);
     $this->db->update($this->table, $data);
   }
 
