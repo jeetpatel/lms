@@ -11,25 +11,54 @@
         ADMIN.createAppointment = {
 
                 bindEvents : function(){
-                    
-                    $(document).off('change.test').on('change.test', '#test', function(event) {
-                            
+                    $(document).off('change.subtest').on('change.subtest', '#subtest', function(event) {
+                            console.log($(this).val());
                             if($(this).val()){
 
-                                var url = ADMIN.base_url+'admin/tests/getTestPrice';
+                                var url = ADMIN.base_url+'admin/subtest/getSubTestPrice';
                                 CIS.Ajax.request(url,{
                                     type : 'POST',
                                     context : this,
-                                    data : {'test_id' : $(this).val(), 'csrf_test_name' : $.cookie("csrf_cookie_name")},
+                                    data : {id: $(this).val(), 'csrf_test_name' : $.cookie("csrf_cookie_name")},
                                     beforeSend : function(){
                                         $(this).find('[type="submit"]').addClass('disabled');
                                     },
                                     success : function(data){
                                         if(data.status == "SUCCESS"){
 
-                                            $('#test_price').val(data.test_price);
-                                            $('#total_price').val(data.final_price);
+                                            $('#test_price').val(parseFloat(data.test_price));
+                                            $('#total_price').val(parseFloat(data.final_price));
+                                            calculateDiscount();
                                         }
+                                    },
+                                    complete : function(){
+                                        $(this).find('[type="submit"]').removeClass('disabled');
+                                        calculateDiscount();
+                                    }
+                                });
+
+                            }else{
+                                    $('#test_price').val(0);
+                                    $('#discount').val(0);
+                                    $('#total_price').val(0);
+                            }   
+                            
+                    });
+                    
+                    $(document).off('change.test').on('change.test', '#test', function(event) {
+                            
+                            if($(this).val()){
+                                var url = ADMIN.base_url+'admin/subtest/getSubTest';
+                                CIS.Ajax.request(url,{
+                                    type : 'POST',
+                                    context : this,
+                                    dataType : 'HTML',
+                                    data : {'test_id' : $(this).val(), 'csrf_test_name' : $.cookie("csrf_cookie_name")},
+                                    beforeSend : function(){
+                                        $(this).find('[type="submit"]').addClass('disabled');
+                                    },
+                                    success : function(data){
+                                        $("#subtest").html(data);
                                     },
                                     complete : function(){
                                         $(this).find('[type="submit"]').removeClass('disabled');
@@ -37,45 +66,14 @@
                                 });
 
                             }else{
-                                    $('#test_price').val('');
-                                    $('#discount').val('');
-                                    $('#total_price').val('');
+                                    $("#subtest").html('<option value="">SELECT SUBTEST</option>');
                             }   
                             
                     });
 
 
-                    $(document).off('focusout.discount').on('focusout.discount', '#discount', function(event) {
-                            
-                            var discountPercent = $(this).val();
-                            var lastChar = $('#sing').val();
-                            if(lastChar == '%'){
-                            var price = parseInt($('#test_price').val());
-                            var discountPercent = parseInt($(this).val());
-                            if(discountPercent && Number.isInteger(discountPercent) && discountPercent <= 100){
-                                    var discount_price = (discountPercent/100)*price,
-                                        total_price = price-discount_price;
-                                        
-                                    $('#discount_price').val((discount_price).toFixed(2));
-                                    $('#total_price').val((total_price).toFixed(2));
-
-                            }else{
-                                $('#discount_price').val('');
-                                $('#discount').val('');
-                                $('#total_price').val((price).toFixed(2));
-                            }
-                        }
-                        else
-                        {
-                            var priceRs = parseInt($('#test_price').val());
-                            var discountRs = parseInt($(this).val());
-                            var disRs= (discountRs/priceRs)*100;
-                            var totalRs = priceRs-discountRs;
-                            $('#discount_price').val((disRs).toFixed(2) + "%");
-                            $('#total_price').val((totalRs).toFixed(2));
-                        
-                         
-                        }
+                    $(document).on('focusout.discount', '#discount', function(event) {
+                        calculateDiscount();    
                     });
 
                     $('#sample_collection_time').ptTimeSelect();
@@ -315,6 +313,91 @@ $('document').ready(function(){
    
 var page = $.fn.investPage();
 
-
-
+//Add More sub test
+    var max_fields      = 10; //maximum input boxes allowed
+    var wrapper         = $(".input_fields_wrap"); //Fields wrapper
+    var add_button      = $(".add_field_button"); //Add button ID
+    
+    var x = 1; //initlal text box count
+    $(add_button).click(function(e){ //on add input button click
+        e.preventDefault();
+        if(x < max_fields){ //max input box allowed
+           
+        var moreFields = '<div class="row subtest_row">';
+        moreFields+='<div class="col-md-6">';
+        moreFields+='<div class="form-group">';
+        moreFields+='<input type="text" placeholder="Sub Test Name" class="form-control" maxlength="50" name="subtest_name[]">';
+        moreFields+='</div>';
+        moreFields+='</div>';
+        moreFields+='<div class="col-md-4">';
+        moreFields+='<div class="form-group">';
+        moreFields+='<input type="number" placeholder="Sub Test Price" class="form-control" maxlength="6" max="500000" name="subtest_price[]">';
+        moreFields+='</div>';
+        moreFields+='</div>';
+        moreFields+='<div class="col-md-2">';
+        moreFields+='<div class="form-group">';
+        moreFields+='<a href="javascript:void(0)" class="remove_field">Remove</a></div>';
+        moreFields+='</div>';
+        moreFields+='</div>';
+        moreFields+='</div>';
+        $(wrapper).append(moreFields); //add input box
+        x++; //text box increment
+        }
+    });
+    
+    $(wrapper).on("click",".remove_field", function(e){ //user click on remove text
+        e.preventDefault(); 
+        $(this).parents(".subtest_row").remove(); x--;
+    })
+    
 });
+/**
+ * Calculate Discount
+ * @returns {undefined}
+ */
+function calculateDiscount() {
+    var discountPercent = $("#discount").val();
+    discountPercent = parseFloat(discountPercent);
+    if (discountPercent<0 || isNaN(discountPercent)==true)
+        discountPercent = 0;
+    var lastChar = $('#sing').val();
+    if(lastChar == '%'){
+    var price = parseFloat($('#test_price').val());
+    
+    if(discountPercent && discountPercent <= 100){
+        var discount_price = (discountPercent/100)*price,
+        total_price = price-parseFloat(discount_price);
+        $('#discount_price').val((discount_price).toFixed(2));
+        $('#total_price').val((total_price).toFixed(2));
+
+    }else{
+        $('#discount_price').val('');
+        $('#discount').val('');
+        $('#total_price').val((price).toFixed(2));
+    }
+    }
+    else
+    {
+        var priceRs = parseFloat($('#test_price').val());
+        var disRs= (discountPercent/priceRs)*100;
+        var totalRs = priceRs-discountPercent;
+        $('#discount_price').val((disRs).toFixed(2) + "%");
+        $('#total_price').val((totalRs).toFixed(2));
+
+
+    }    
+}
+
+function openPopup(url,title) {
+    var height = 900;
+    var width = 800;
+    //window.open(url,title);
+    var leftPosition, topPosition;
+    //Allow for borders.
+    leftPosition = (window.screen.width / 2) - ((width / 2) + 10);
+    //Allow for title and status bars.
+    topPosition = (window.screen.height / 2) - ((height / 2) + 50);
+    //Open the window.
+    window.open(url, title, "status=no,height=" + height + ",width=" + width + ",resizable=yes,left=" + leftPosition + ",top=" + topPosition + ",screenX=" + leftPosition + ",screenY=" + topPosition + ",toolbar=no,menubar=no,scrollbars=no,location=no,directories=no");
+}
+
