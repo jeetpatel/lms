@@ -17,8 +17,6 @@ class Appointments extends MY_Controller {
     $this->load->model('appointments_model');
     $this->load->model('subtest_model');
     $this->load->model('tests_model');
-    $this->load->model('doctors_model');
-    $this->load->model('commission_model');
     $this->load->library('form_validation');
     $this->load->helper('tests');
     $this->load->helper('doctor');
@@ -29,21 +27,71 @@ class Appointments extends MY_Controller {
    * @return [type] [description]
    */
   public function index() {
+    $config['per_page'] = RECORDSPERPAGE;  
     $q = urldecode($this->input->get('q', TRUE));
-    $start = intval($this->input->get('start'));    
-    $segment = $this->uri->segment(3);
-    if (!empty($segment) && ctype_digit($segment)) {
-      $start = $this->uri->segment(3);
+    $start = intval($this->input->get('start'));
+    $per_page = $this->input->get('per_page');
+    $segment3 = $this->uri->segment(3);
+    $segment4 = $this->uri->segment(4);
+    if ((!empty($per_page))  && (ctype_digit($per_page)))
+    {
+      $start = $per_page;
     }
-    $config['per_page'] = RECORDSPERPAGE;
-    $config['uri_segment'] = 3;    
-    $baseUrl      = base_url('admin/appointments');
-    $firstUrl     = base_url('admin/appointments');
-    $totalRows    = $this->appointments_model->total_rows($q);
-    $appointments = $this->appointments_model->get_limit_data($config['per_page'], $start, $q);
-    $action       = 'list';
-    $config['base_url'] = $baseUrl;
-    $config['first_url'] = $firstUrl;
+    else if (!empty($segment4) && (ctype_digit($segment4))) {
+      $start = $segment4;
+    }
+    else if (!empty($segment3) && (ctype_digit($segment3))) {
+      $start = $segment3;
+    } else {
+      $start = 0;
+    } 
+    
+    if (!empty($segment3) && ctype_alpha($segment3)) {
+      $action = $segment3;
+    }
+    else if (!empty($segment4) && ctype_alpha($segment4)) {
+      $action = $segment4;
+    } else {
+      $action = 'list';
+    }
+    
+    
+    $config['uri_segment'] = 3;
+    if ($action == 'today') {
+      $baseUrl     = base_url('admin/appointments/today');
+      $firstUrl    = $baseUrl;
+      $totalRows   = $this->appointments_model->todayAppointmentsCount();
+      $appointments = $this->appointments_model->order_by('id', 'DESC')->todayAppointments($config['per_page'], $start);
+
+    }
+    //By Date
+    elseif ($action == 'bydate') {
+      $config['page_query_string'] = TRUE;
+      $default_date = date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
+      if ($this->input->get('from_date') || $this->input->get('to_date')) {
+        $dates = array('from_date' => $this->input->get('from_date'),
+          'to_date' => $this->input->get('to_date'));
+      }
+      else {
+        $dates      = array('from_date' => $default_date, 'to_date' => $default_date);
+      }
+      $baseUrl      = base_url('admin/appointments/bydate/?') . http_build_query($dates);
+      //$firstUrl      = base_url('admin/appointments?filter=bydate&');
+      $firstUrl     = $baseUrl;
+      $totalRows    = $this->appointments_model->getAppointmentsCountByDate($dates['from_date'], $dates['to_date']);
+      $appointments = $this->appointments_model->getAppointmentsByDate($dates['from_date'], $dates['to_date'], $config['per_page'], $start);
+    }else {
+      $baseUrl      = base_url('admin/appointments');
+      $firstUrl     = base_url('admin/appointments');
+      $totalRows    = $this->appointments_model->total_rows($q);
+      $appointments = $this->appointments_model->get_limit_data($config['per_page'], $start, $q);
+      $action       = 'list';
+    }
+   
+      $config['base_url'] = $baseUrl;
+      $config['first_url'] = $firstUrl;
+  
+    
     $config['total_rows'] = $totalRows;
     $this->load->library('pagination');
     $this->pagination->initialize($config);
@@ -55,8 +103,23 @@ class Appointments extends MY_Controller {
       'start' => $start,      
       'appScript' => "ADMIN.uploadReportsForm.init(); ADMIN.sendMail.init();"
     );
-    $data['heading'] = "List";      
+    if ($action=='today') {
+      $data['day_details'] = $this->appointments_model->getDayDetails(date('Y-m-d'));
+      $data['heading'] = "Today Appointments";
+    }
+    elseif ($action=='bydate') {
+      $data['heading'] = "From Date :".$dates['from_date']." - To Date : ".$dates['to_date'];      
+      $data['date'] = date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
+      $data['appScript'] = 'ADMIN.getAppointmentsByDate.init(); ADMIN.uploadReportsForm.init(); ADMIN.sendMail.init();';
+      $data['dates'] = $dates;
+      $data['day_details'] = $this->appointments_model->getDetailsByDates($dates['from_date'], $dates['to_date']);
+      $this->template->add_thirdparty_css('bootstrap-datepicker-master/dist/css/bootstrap-datepicker.css');
+      $this->template->add_thirdparty_js('bootstrap-datepicker-master/dist/js/bootstrap-datepicker.js');
+    } else {
+      $data['heading'] = "List";      
+    }
     $data['action'] = $action;
+    $data['segment'] = $start;
     $this->template->load_view('appointments/appointments_list', array_merge($this->data, $data));
   }
 
@@ -230,6 +293,7 @@ class Appointments extends MY_Controller {
       $this->create();
     }
     else {
+      // dump_exit($this->input->post());
       $date = date('Y-m-d H:i:s');
       $data = array(
         'user_id' => $this->session->userdata('account_id'),
@@ -267,25 +331,7 @@ class Appointments extends MY_Controller {
       $data['test_name'] = (isset($testResult->test_name)) ? $testResult->test_name : NULL;
       $data['created_at'] = $date;
       $data['updated_at'] = $date;
-      $aid = $this->appointments_model->insert_appointment($data);
-      //commission calculation
-      $totalPrice = $this->input->post('total_price');
-      $doctorID   = $this->input->post('doctor_ref_by');
-      if (!empty($doctorID)) {
-        $doctorResult = $this->doctors_model->get_by_id($doctorID);
-        if ((!empty($doctorResult)) && (!empty($aid)))
-        {
-          $commission = $doctorResult->commission;
-          $commAmount = ($totalPrice*$commission)/100;
-          $cData['comm_amount']     = $commAmount;
-          $cData['doctor_id']       = $doctorID;
-          $cData['appointment_id']  = $aid;
-          $cData['total_amount']    = $totalPrice;
-          $cData['comm_percent']    = $doctorResult->commission;
-          $cData['created_at']      = $date;
-          $this->commission_model->insert_commission($cData);
-        }
-      }      
+      $this->appointments_model->insert_appointment($data);
       $this->session->set_flashdata('message', 'Appointment Saved Successfully.');
       redirect(site_url('admin/appointments'));
     }

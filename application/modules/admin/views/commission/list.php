@@ -4,7 +4,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <h1>
-            Tests
+            Commission
             <small>Control panel</small>
         </h1>
         <ol class="breadcrumb">
@@ -19,7 +19,6 @@
 
         <div class="row" style="margin-bottom: 10px">
 
-
             <?php if ($this->session->flashdata('message') <> ''): ?>
               <div class="col-md-offset-3 col-md-6 text-center">
                   <div style="margin-top: 8px" id="message">
@@ -31,8 +30,6 @@
                   </div>
               </div>
             <?php endif; ?>
-
-
 
         </div>
 
@@ -46,14 +43,14 @@
                     <div class="box-header">
                         <h3 class="box-title">List</h3>
                         <div class="box-tools">
-                            <form action="<?php echo site_url('admin/tests'); ?>" class="form-inline" method="get">
+                            <form action="<?php echo site_url('admin/commission'); ?>" class="form-inline" method="get">
                                 <div class="input-group">
                                     <input type="text" class="form-control" name="q" value="<?php echo $q; ?>">
                                     <span class="input-group-btn">
                                         <?php
                                         if ($q <> '') {
                                           ?>
-                                          <a href="<?php echo site_url('admin/tests'); ?>" class="btn btn-default">Reset</a>
+                                          <a href="<?php echo site_url('admin/commission'); ?>" class="btn btn-default">Reset</a>
                                           <?php
                                         }
                                         ?>
@@ -68,50 +65,32 @@
                     <div class="box-body table-responsive no-padding">
                         <table class="table table-hover" style="margin-bottom: 10px">
                             <tr>
-                                <th>No</th>
-                                <th width="40%">Test Name/Description</th>
-                                <th>Sub Test Name</th>
-                                <th>Price (<?php echo $this->config->item('site_currency'); ?>) </th>
-                                <th>Status</th>
+                                <th>ID</th>
+                                <th>Doctor Name</th>
+                                <th>Doctor ID</th>
+                                <th>Total Amount</th>
+                                <th>Percent(%)</th>
+                                <th>Commission</th>
+                                <th>Created At</th>
                                 <th>Action</th>
                             </tr><?php
-                                        if (count($tests_data) > 0):
-                                          foreach ($tests_data as $tests) {
+                                        if (count($result_data) > 0):
+                                          foreach ($result_data as $result) {
                                             ?>
-                                <tr style="background: #DDD;">
-                                    <td width="50px"><?php echo ++$start ?></td>
-                                    <td colspan="2"><?php echo humanize($tests->test_name) ?>:<?php echo humanize($tests->test_description) ?></td>
-                                    <td></td>
-                                    <td><?php echo humanize($tests->status) ?></td>
-                                    <td width="50px">
-                                        <?php
-                                        echo anchor(site_url('admin/tests/update/' . $tests->id), 'Update');
-                                        ?>
+                                <tr>
+                                    <td width="80px"><?php echo ++$start ?></td>
+                                    <td><?php echo humanize($result->surname); ?> <?php echo humanize($result->name); ?></td>
+                                    <td><?php echo $result->doctor_id; ?></td>
+                                    <td><?php echo $result->total_amount; ?></td>
+                                    <td><?php echo $result->comm_percent; ?></td>
+                                    <td><?php echo $result->comm_amount; ?></td>
+                                    <td><?php echo $result->created_at; ?></td>                                   
+                                    <td>
+                                        <a href="" rel="async" ajaxify="admin/appointments/read/<?php echo $result->appointment_id;?>" data-title="Appointment Info">Appointment</a>
                                     </td>
                                 </tr>
-                                <?php
-                                $subTestResult = getSubTest($tests->id);
-
-                                if (count($subTestResult) > 0) {
-                                  $subStart = 0;
-                                  foreach ($subTestResult as $subtest) {
-                                    ?>
-                                    <tr>
-                                        <td title="Sub Test">&nbsp;&nbsp;&nbsp;<?php echo ++$subStart ?></td>
-                                        <td title="Sub Test"></td>
-                                        <td title="Sub Test"><?php echo humanize($subtest->subtest_name) ?></td>
-                                        <td title="Sub Test" colspan="3"><?php echo $subtest->price ?></td>
-                                    </tr>
-                                    <?php
-                                  }
-                                }
-                              } else:
-                              ?>
-
-                              <tr>
-                                  <td colspan=8 class="text-center"> <h4>Add a Test.</h4></td>
-                              </tr>
-<?php endif; ?>
+                              <?php } else: ?>
+                            <?php endif; ?>
                         </table>
 
 
@@ -123,11 +102,10 @@
 
         <div class="row">
             <div class="col-md-6">
-<?php echo anchor(site_url('admin/tests/create'), 'Create', 'class="btn btn-primary"'); ?>
                 <a href="javascript:void(0);" class="btn btn-primary">Total Record : <?php echo $total_rows ?></a>
             </div>
             <div class="col-md-6 text-right" id="appointments_pagination">
-<?php echo $pagination ?>
+                <?php echo $pagination ?>
             </div>
         </div>
 

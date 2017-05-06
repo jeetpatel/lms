@@ -75,6 +75,7 @@ class Appointments_model extends MY_Model
     function insert_appointment($data)
     {
         $this->db->insert($this->table, $data);
+        return $this->db->insert_id();
     }
     // update data
     function update_appointment($id, $data)

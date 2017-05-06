@@ -15,6 +15,8 @@ class Tests extends MY_Controller
             redirect('');
         }
         $this->load->model('tests_model');
+        $this->load->helper('subtest');
+        $this->load->model('subtest_model');
         $this->load->library('form_validation');
     }
 
@@ -75,7 +77,7 @@ class Tests extends MY_Controller
         'id' => $row->id,
         'test_name' => $row->test_name,
         'test_description' => $row->test_description,
-        'test_price' => $row->test_price,
+        //'test_price' => $row->test_price,
         'status' => $row->status,
         );
             $this->template->load_view('tests/tests_read', array_merge($this->data,$data));
@@ -101,7 +103,8 @@ class Tests extends MY_Controller
         'id' => set_value('id'),
         'test_name' => set_value('test_name'),
         'test_description' => set_value('test_description'),
-        'test_price' => set_value('test_price'),
+        //'test_price' => set_value('test_price'),
+        'subtest'   => array(),
         'status' => set_value('status'),
         'appScript' => 'ADMIN.createTest.init();',
     );
@@ -124,11 +127,27 @@ class Tests extends MY_Controller
             $data = array(
         'test_name' => $this->input->post('test_name',TRUE),
         'test_description' => $this->input->post('test_description',TRUE),
-        'test_price' => $this->input->post('test_price',TRUE),
+        //'test_price' => 12,
+        'subtest'   => array(),
         'status' => $this->input->post('status',TRUE),
         );
-            $this->tests_model->insert_test($data);
-            $this->session->set_flashdata('message', 'Test Added Successfully.');
+            $testID = $this->tests_model->insert_test($data);
+            if (!empty($testID)) {
+              $date = date('Y-m-d H:i:s');
+              $subtestName = $this->input->post('subtest_name');
+              $subtestPrice = $this->input->post('subtest_price');
+              if (count($subtestName)>0) {
+                foreach ($subtestName as $index=>$name)
+                {
+                  $price = $subtestPrice[$index];
+                  $data = array('test_id'=>$testID,'subtest_name'=>$name,
+                    'price'=>$price,'status'=>'1','created_at'=>$date,
+                    'updated_at'=>$date);
+                  $this->subtest_model->insert_subtest($data);
+                }
+              }
+            }
+            $this->session->set_flashdata('message', 'Test Added Successfully.'.$testID);
             redirect(site_url('admin/tests'));
         }
     }
@@ -143,6 +162,7 @@ class Tests extends MY_Controller
      */
     public function update($id) 
     {
+      $this->load->model('subtest_model', 'subtest_m');     
         $row = $this->tests_model->get_by_id($id);
         if ($row) {
             $data = array(
@@ -152,7 +172,7 @@ class Tests extends MY_Controller
                 'id' => set_value('id', $row->id),
                 'test_name' => set_value('test_name', $row->test_name),
                 'test_description' => set_value('test_description', $row->test_description),
-                'test_price' => set_value('test_price', $row->test_price),
+                'subtest'   => $this->subtest_m->get_all_subtest($id),
                 'status' => set_value('status', $row->status),
         );
             $this->template->load_view('tests/tests_form', array_merge($this->data,$data));
@@ -178,9 +198,29 @@ class Tests extends MY_Controller
             $data = array(
         'test_name' => $this->input->post('test_name',TRUE),
         'test_description' => $this->input->post('test_description',TRUE),
-        'test_price' => $this->input->post('test_price',TRUE),
+        //'test_price' => $this->input->post('test_price',TRUE),
         'status' => $this->input->post('status',TRUE),
         );
+            $testID = $this->input->post('id');
+            if (!empty($testID)) {
+              $date = date('Y-m-d H:i:s');
+              $subtestName = $this->input->post('subtest_name');
+              $subtestPrice = $this->input->post('subtest_price');
+              $subTestIDs = $this->input->post('subTestID');
+              //Delete All sub test First
+              $this->subtest_model->delete_subtest_test($testID);
+              if (count($subtestName)>0) {
+                foreach ($subtestName as $index=>$name)
+                {                  
+                  $price = $subtestPrice[$index];
+                  $subtest_data = array('test_id'=>$testID,'subtest_name'=>$name,
+                    'price'=>$price,'status'=>'1','updated_at'=>$date);                  
+                    $subtest_data['created_at'] = $date;
+                    $this->subtest_model->insert_subtest($subtest_data);
+                }
+              } 
+            }
+            
             $this->tests_model->update_test($this->input->post('id', TRUE), $data);
             $this->session->set_flashdata('message', 'Test Updated Successfully.');
             redirect(site_url('admin/tests'));
@@ -200,6 +240,7 @@ class Tests extends MY_Controller
         $row = $this->tests_model->get_by_id($id);
         if ($row) {
             $this->tests_model->delete_test($id);
+            $this->subtest_model->delete_subtest_test($id);
             $this->session->set_flashdata('message', 'Delete Record Success');
             redirect(site_url('admin/tests'));
         } else {
@@ -218,7 +259,8 @@ class Tests extends MY_Controller
     {
     $this->form_validation->set_rules('test_name', 'test name', 'trim|required|max_length[250]');
     $this->form_validation->set_rules('test_description', 'test description', 'trim|required');
-    $this->form_validation->set_rules('test_price', 'test price', 'trim|required|numeric');
+    $this->form_validation->set_rules('subtest_name[]', 'subtest name', 'trim|required');
+    $this->form_validation->set_rules('subtest_price[]', 'subtest price', 'trim|required|numeric');
     $this->form_validation->set_rules('status', 'status', 'trim|required');
     $this->form_validation->set_rules('id', 'id', 'trim');
     $this->form_validation->set_error_delimiters('<small class="text-danger">', '</small>');
@@ -232,7 +274,7 @@ class Tests extends MY_Controller
      * @return [type] [description]
      */
     public function getTestPrice()
-    {
+    { echo "aaa";
         if($this->input->is_ajax_request()){
             $result = array('status' => 'FAIL', 'mes' => '', 'test_price' => 0.00, 'final_price' => 0.00);
             if($this->input->post('test_id')){
@@ -243,6 +285,40 @@ class Tests extends MY_Controller
                     $result['status'] = 'SUCCESS';
                     $result['test_price'] = $details->test_price;
                     $result['final_price'] = $details->test_price;
+                }
+            }
+            echo json_encode($result); return;
+        }
+    }
+    
+    public function getSubTest() {
+      echo '<option value="">SELECT SUBTEST</option>';
+      if($this->input->is_ajax_request()){            
+            if($this->input->post('test_id')){
+                $this->load->model('subtest_model', 'subtest_m');
+                $test_id = $this->input->post('test_id');
+                $result = $this->subtest_m->get_all_subtest($test_id);
+                echo "<pre>"; print_r($result); echo "</pre>";
+            }
+            //echo json_encode($result); return;
+        } die;
+    }
+    /**
+     * [getTestPrice description]
+     * @return [type] [description]
+     */
+    public function getSubTestPrice()
+    {
+        if($this->input->is_ajax_request()){
+            $result = array('status' => 'FAIL', 'mes' => '', 'test_price' => 0.00, 'final_price' => 0.00);
+            if($this->input->post('test_id')){
+                $this->load->model('subtest_model', 'subtest_m');
+                $where['test_id'] = $this->input->post('test_id');
+                $details = $this->subtest_m->get_by($where);
+                if(!empty($details)){
+                    $result['status'] = 'SUCCESS';
+                    $result['test_price'] = $details->price;
+                    $result['final_price'] = $details->price;
                 }
             }
             echo json_encode($result); return;

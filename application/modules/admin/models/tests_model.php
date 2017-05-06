@@ -56,6 +56,7 @@ class Tests_model extends MY_Model
     function insert_test($data)
     {
         $this->db->insert($this->table, $data);
+        return $this->db->insert_id();
     }
 
     // update data

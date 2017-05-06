@@ -1,5 +1,6 @@
 	    		<table class="table">
-	    		<tr><td>Test a</td><td><?php echo getTestName($test); ?></td></tr>
+	    		<tr><td>Test</td><td><?php echo getTestName($test); ?></td></tr>
+	    		<tr><td>Sub Test</td><td><?php echo $subtest_name; ?></td></tr>
 			    <tr><td>Reference No</td><td><?php echo $reference_no; ?></td></tr>
 			    <tr><td>Name</td><td><?php echo humanize($name); ?></td></tr>
 			    <tr><td>Age</td><td><?php echo $age; ?></td></tr>

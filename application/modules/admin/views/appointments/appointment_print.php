@@ -69,12 +69,22 @@
                 text-align:center;
             }
         }
+        @media print{
+            .close_button{
+              display:none;
+            }
+        }
+        .close_button{
+          text-align:center;
+        }
     </style>
 </head>
 
 <body>
 
-
+    <p class="close_button"> 
+        <a href="javascript:void(0)" onclick="window.close();">Close</a>
+    </p>
 
 <?php foreach ($generateValue as $v): ?>
 
@@ -127,10 +137,10 @@
 
                         <td>
                             Test<br>
-                            121212<br>
+                            <?php echo $v['test_name']; ?><br>
                             Sub Test<br>
-                            53453453<br>
-                            Price : 345.00 Rs.
+                            <?php echo $v['subtest_name']; ?><br>
+                            Price : <?php echo $v['total_price']; ?> Rs.
                             
                         </td>
                     </tr>
@@ -211,9 +221,8 @@
 </div>
 <?php endforeach; ?>
 <script type="text/javascript">
-  window.print();
-  window.onfocus=function(){ window.close();}
-  window.location="<?php echo site_url('admin/appointments'); ?>";
+  setTimeout(function () { window.print(); }, 500);
+  window.onfocus = function () { setTimeout(function () { window.close(); }, 500); }
 </script>
 
 </body>

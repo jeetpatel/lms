@@ -130,6 +130,9 @@
                                             echo ' | ';
                                             ?>
                                             <a href="admin/appointments/uploadReportsForm" class="uploadReportsForm" data-refno="<?php echo $appointments->reference_no; ?>">Upload Reports</a>
+                                            |
+                                            <a href="javascript:void(0)" onclick="openPopup('<?php echo site_url('admin/appointments/generate/' . $appointments->id);?>','Print Invoice')"><i class="fa fa-print" aria-hidden="true"></i></a>                                        
+                                            
                                             <span>
                                                 <?php 
                                                     if(!empty($appointments->report_doc) && !empty($appointments->email_id)){

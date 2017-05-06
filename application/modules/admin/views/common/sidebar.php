@@ -53,9 +53,9 @@
           <li class="<?php if($this->uri->uri_string() == ALLDOCTORS) echo "active"; ?>"><a href="<?php echo ALLDOCTORS; ?>"><i class="fa fa-circle-o"></i>List Doctors</a></li>
           <li class="<?php if($this->uri->uri_string() == ADDDOCTOR) echo "active"; ?>"><a href="<?php echo ADDDOCTOR; ?>"><i class="fa fa-circle-o"></i>Add Doctor</a></li>
         </ul>
-      </li>
+      </li>      
+      <li class="<?php if($this->uri->uri_string() == COMMISSION) echo "active"; ?>"><a href="<?php echo COMMISSION; ?>"><i class="fa fa-plus"></i> <span>Commission</span></a></li>
       <?php endif; ?>
-
 
       
 
