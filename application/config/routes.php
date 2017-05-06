@@ -71,6 +71,8 @@ $route['admin/tests/createAction'] = "admin/tests/createAction";
 $route['admin/tests/update/(:num)'] = "admin/tests/update/$1";
 $route['admin/tests/updateAction'] = "admin/tests/updateAction";
 $route['admin/tests/getTestPrice'] = "admin/tests/getTestPrice";
+$route['admin/subtest/getSubTest'] = "admin/subtest/getSubTest";
+$route['admin/subtest/getSubTestPrice'] = "admin/subtest/getSubTestPrice";
 $route['admin/tests/checkTestExists'] = "admin/tests/checkTestExists";
 //doctors module routes
 $route['admin/doctors'] = "admin/doctors/index";
@@ -80,6 +82,9 @@ $route['admin/doctors/read/(:num)'] = "admin/doctors/read/$1";
 $route['admin/doctors/createAction'] = "admin/doctors/createAction";
 $route['admin/doctors/update/(:num)'] = "admin/doctors/update/$1";
 $route['admin/doctors/updateAction'] = "admin/doctors/updateAction";
+//commission module routes
+$route['admin/commission'] = "admin/commission/index";
+$route['admin/commission/(:num)'] = "admin/commission/index/$1";
 //Appointments module routes
 $route['admin/appointments'] = "admin/appointments/index";
 $route['admin/appointments/(:num)'] = "admin/appointments/index/$1";
