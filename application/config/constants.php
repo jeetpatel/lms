@@ -89,6 +89,7 @@ define('GETAPPOINTMENTSBYDATE','admin/appointments/getAppointmentsByDate');
 
 define('EMAILSETTINGS', 'admin/emailsettings');
 define('REPORTS', 'admin/reports');
+define('COMMISSION', 'admin/commission');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
