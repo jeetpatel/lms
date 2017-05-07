@@ -128,7 +128,7 @@ class Tests extends MY_Controller
         'test_name' => $this->input->post('test_name',TRUE),
         'test_description' => $this->input->post('test_description',TRUE),
         //'test_price' => 12,
-        'subtest'   => array(),
+        //'subtest'   => array(),
         'status' => $this->input->post('status',TRUE),
         );
             $testID = $this->tests_model->insert_test($data);
