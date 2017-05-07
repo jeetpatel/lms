@@ -71,7 +71,7 @@
       </div>
       <div class="col-md-2">
           <div class="form-group">
-              <input type="text" name="subTestID[]" value="<?php echo $sTest->id; ?>"/>
+              <input type="hidden" name="subTestID[]" value="<?php echo $sTest->id; ?>"/>
               <?php if ($subTestCount>0) { ?>
               <a href="javascript:void(0)" class="remove_field">Remove</a>
               <?php } $subTestCount++;?>
